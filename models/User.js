@@ -1,8 +1,13 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
+const bcrypt = require('bcrypt');
 
 // create user model
-class User extends Model {}
+class User extends Model {
+    checkPassword(loginPw) {
+        return bcrypt.compareSync(loginPw, this.password);
+    }
+}
 
 User.init(
     {
@@ -35,6 +40,19 @@ User.init(
         }
     },
     {
+        hooks: {
+            // set up for before the user is created
+            async beforeCreate(newUserData) {
+                // 10 is the saltRound value that tells it how intense to make the hash
+                newUserData.password = await bcrypt.hash(newUserData.password, 10);
+                return newUserData;
+            },
+            // set up for before the password get posted after an updated
+            async beforeUpdate(updatedUserData) {
+                updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+                return updatedUserData;
+            }
+        },
         // TABLE CONFIG GOES HERE 
 
         //pass in imported squelize connection

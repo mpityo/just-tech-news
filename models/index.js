@@ -21,4 +21,13 @@ Vote.belongsTo(Post, {
     foreignKey: 'post_id'
 });
 
-module.exports = { User };
+// create associations
+User.hasMany(Post, {
+    foreignKey: 'user_id'
+});
+
+Post.belongsTo(User, {
+    foreignKey: 'user_id'
+});
+
+module.exports = { User, Post };
